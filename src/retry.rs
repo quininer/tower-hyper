@@ -5,6 +5,7 @@ use http::{Request, Response};
 use hyper::body::{Chunk, Payload};
 use std::marker::PhantomData;
 use tower_retry::Policy;
+use crate::body::LiftBody;
 
 /// A simple retry policy for hyper bases requests.
 ///
@@ -46,7 +47,7 @@ impl<E> RetryPolicy<E> {
     }
 }
 
-impl<T, E> Policy<Request<T>, Response<hyper::Body>, E> for RetryPolicy<E>
+impl<T, E> Policy<Request<T>, Response<LiftBody<hyper::Body>>, E> for RetryPolicy<E>
 where
     T: Into<hyper::Body> + TryClone,
 {
@@ -55,7 +56,7 @@ where
     fn retry(
         &self,
         _: &Request<T>,
-        result: Result<&Response<hyper::Body>, &E>,
+        result: Result<&Response<LiftBody<hyper::Body>>, &E>,
     ) -> Option<Self::Future> {
         if self.attempts == 0 {
             // We ran out of retries, hence us returning none.

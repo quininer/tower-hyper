@@ -37,6 +37,7 @@ fn main() {
                         println!("Response Status: {:?}", response.status());
                         response
                             .into_body()
+                            .into_inner()
                             .concat2()
                             .map_err(|e| eprintln!("Body Error: {}", e))
                     })
